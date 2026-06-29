@@ -1,5 +1,5 @@
 import { Task, FinanceTransaction, Habit, HabitLog, Goal } from '@/types'
-import { format, isAfter, isBefore, startOfMonth, endOfMonth } from 'date-fns'
+import { format, startOfMonth, endOfMonth, parseISO, isPast, isToday } from 'date-fns'
 
 export interface SuggestionContext {
   tasks: Task[]
@@ -19,11 +19,13 @@ export interface Suggestion {
 export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
   const suggestions: Suggestion[] = []
   const now = new Date()
-  const monthStart = startOfMonth(now)
-  const monthEnd = endOfMonth(now)
+  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd')
+  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd')
 
   // Task suggestions
-  const overdue = ctx.tasks.filter(t => t.status === 'overdue')
+  const overdue = ctx.tasks.filter(t =>
+    t.due_date && t.status !== 'completed' && isPast(parseISO(t.due_date)) && !isToday(parseISO(t.due_date))
+  )
   if (overdue.length > 0) {
     suggestions.push({
       message: `You have ${overdue.length} overdue task${overdue.length > 1 ? 's' : ''}. Time to catch up!`,
@@ -47,11 +49,11 @@ export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
 
   // Finance suggestions
   const monthlyExpenses = ctx.transactions
-    .filter(t => t.type === 'expense' && isAfter(new Date(t.date), monthStart) && isBefore(new Date(t.date), monthEnd))
+    .filter(t => t.type === 'expense' && t.date >= monthStart && t.date <= monthEnd)
     .reduce((sum, t) => sum + t.amount, 0)
 
   const monthlyIncome = ctx.transactions
-    .filter(t => t.type === 'income' && isAfter(new Date(t.date), monthStart) && isBefore(new Date(t.date), monthEnd))
+    .filter(t => t.type === 'income' && t.date >= monthStart && t.date <= monthEnd)
     .reduce((sum, t) => sum + t.amount, 0)
 
   if (monthlyIncome > 0) {
@@ -72,9 +74,9 @@ export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
   }
 
   // Food spending this week
+  const weekAgo = format(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')
   const foodSpend = ctx.transactions
-    .filter(t => t.type === 'expense' && t.category.toLowerCase() === 'food' &&
-      isAfter(new Date(t.date), new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)))
+    .filter(t => t.type === 'expense' && t.category.toLowerCase() === 'food' && t.date >= weekAgo)
     .reduce((sum, t) => sum + t.amount, 0)
 
   if (foodSpend > 0) {

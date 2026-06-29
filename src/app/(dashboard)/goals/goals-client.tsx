@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Pencil, Target, CheckCircle, Clock, TrendingUp, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -196,7 +195,7 @@ export function GoalsClient({ user }: GoalsClientProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader><DialogTitle>{editing ? 'Edit Goal' : 'New Goal'}</DialogTitle></DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+          <form key={editing?.id ?? 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
             <Input {...register('title')} placeholder="Goal title" className="rounded-xl" />
             {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
             <div className="grid grid-cols-2 gap-3">

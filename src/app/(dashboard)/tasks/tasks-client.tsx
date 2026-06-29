@@ -282,7 +282,7 @@ export function TasksClient({ user }: TasksClientProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader><DialogTitle>{editing ? 'Edit Task' : 'New Task'}</DialogTitle></DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+          <form key={editing?.id ?? 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
             <div>
               <Input {...register('title')} placeholder="Task title" className="rounded-xl" />
               {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}

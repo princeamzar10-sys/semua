@@ -242,7 +242,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader><DialogTitle>{editing ? 'Edit Transaction' : 'New Transaction'}</DialogTitle></DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+          <form key={editing?.id ?? 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
             <Input {...register('title')} placeholder="Title" className="rounded-xl" />
             {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
             <div className="grid grid-cols-2 gap-3">
