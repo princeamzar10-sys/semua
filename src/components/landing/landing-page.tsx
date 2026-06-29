@@ -196,7 +196,7 @@ export function LandingPage() {
               </span>
             </h2>
             <p className="text-gray-600 leading-relaxed text-sm font-bold text-justify">
-              Semua (meaning "everything" in Malay) is designed with one goal: give you a single, beautiful place to manage your entire life.
+              Semua (meaning &ldquo;everything&rdquo; in Malay) is designed with one goal: give you a single, beautiful place to manage your entire life.
               No bloat. No confusion. Just you and your goals.
             </p>
           </motion.div>
