@@ -10,9 +10,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect('/')
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8F9FB]">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div
+        className="flex-1 flex flex-col overflow-hidden"
+        style={{
+          backgroundImage: 'url(/bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         {children}
       </div>
       <KeyboardShortcut />

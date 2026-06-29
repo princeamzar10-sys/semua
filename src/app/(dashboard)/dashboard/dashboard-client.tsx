@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Topbar } from '@/components/layout/topbar'
 import { AIWidget } from '@/components/ai/ai-widget'
@@ -58,13 +58,13 @@ export function DashboardClient({ user }: DashboardClientProps) {
   const firstName = user.full_name?.split(' ')[0] ?? user.email?.split('@')[0] ?? 'there'
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
+    <div className="flex flex-col h-full overflow-hidden bg-transparent">
       <Topbar title="Dashboard" user={user} />
       <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6 pb-8">
 
         {/* Greeting */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{greeting}, {firstName} 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{greeting}, {firstName} ðŸ‘‹</h1>
           <p className="text-sm text-gray-400 mt-0.5">{format(now, 'EEEE, MMMM d, yyyy')}</p>
         </div>
 
@@ -103,7 +103,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
               </div>
               {focusTasks.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-3xl mb-2">✅</p>
+                  <p className="text-3xl mb-2">âœ…</p>
                   <p className="text-sm text-gray-500 font-medium">All caught up!</p>
                   <p className="text-xs text-gray-400">No tasks due today</p>
                 </div>
@@ -213,7 +213,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
               </div>
               {activeGoals.length === 0 ? (
                 <div className="text-center py-6">
-                  <p className="text-2xl mb-2">🎯</p>
+                  <p className="text-2xl mb-2">ðŸŽ¯</p>
                   <p className="text-xs text-gray-400">No active goals. <Link href="/goals" className="text-black underline">Set one</Link></p>
                 </div>
               ) : (
@@ -250,3 +250,4 @@ export function DashboardClient({ user }: DashboardClientProps) {
     </div>
   )
 }
+

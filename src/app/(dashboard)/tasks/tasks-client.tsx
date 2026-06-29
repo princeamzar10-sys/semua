@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
@@ -195,7 +195,7 @@ export function TasksClient({ user }: TasksClientProps) {
   ]
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
+    <div className="flex flex-col h-full overflow-hidden bg-transparent">
       <Topbar title="Tasks" user={user} />
       <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6 pb-24">
 
@@ -219,7 +219,7 @@ export function TasksClient({ user }: TasksClientProps) {
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <Input placeholder="Search tasks…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-white border-gray-200 rounded-xl h-10" />
+            <Input placeholder="Search tasksâ€¦" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-white border-gray-200 rounded-xl h-10" />
           </div>
           <Select value={filterStatus} onValueChange={v => setFilterStatus(v ?? 'all')}>
             <SelectTrigger className="w-36 bg-white border-gray-200 rounded-xl h-10"><SelectValue placeholder="Status" /></SelectTrigger>
@@ -263,10 +263,10 @@ export function TasksClient({ user }: TasksClientProps) {
           </motion.div>
         ) : (
           <div className="space-y-6">
-            <SectionGroup title="Overdue" icon="🔴" color="text-red-500" tasks={overdue} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} />
-            <SectionGroup title="Today" icon="🟡" color="text-amber-500" tasks={today} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} />
-            <SectionGroup title="Upcoming" icon="🟢" color="text-green-600" tasks={upcoming} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} />
-            <SectionGroup title="Completed" icon="✓" color="text-gray-400" tasks={completed} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} defaultOpen={false} />
+            <SectionGroup title="Overdue" icon="ðŸ”´" color="text-red-500" tasks={overdue} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} />
+            <SectionGroup title="Today" icon="ðŸŸ¡" color="text-amber-500" tasks={today} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} />
+            <SectionGroup title="Upcoming" icon="ðŸŸ¢" color="text-green-600" tasks={upcoming} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} />
+            <SectionGroup title="Completed" icon="âœ“" color="text-gray-400" tasks={completed} onEdit={openEdit} onDelete={handleDelete} onToggle={handleToggle} defaultOpen={false} />
           </div>
         )}
       </main>
@@ -333,3 +333,4 @@ export function TasksClient({ user }: TasksClientProps) {
     </div>
   )
 }
+

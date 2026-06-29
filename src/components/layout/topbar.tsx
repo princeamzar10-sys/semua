@@ -16,7 +16,7 @@ export function Topbar({ title, user }: TopbarProps) {
     : user?.email?.[0]?.toUpperCase() ?? 'U'
 
   return (
-    <header className="h-14 border-b border-gray-100 bg-white flex items-center justify-between px-6 shrink-0">
+    <header className="h-14 border-b border-gray-100/60 bg-white/70 backdrop-blur-md flex items-center justify-between px-6 shrink-0">
       <div>
         <h1 className="text-base font-semibold text-gray-900">{title}</h1>
         <p className="text-xs text-gray-400">{format(new Date(), 'EEEE, MMMM d')}</p>

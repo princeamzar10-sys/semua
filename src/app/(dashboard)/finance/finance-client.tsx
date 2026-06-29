@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
@@ -80,7 +80,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
+    <div className="flex flex-col h-full overflow-hidden bg-transparent">
       <Topbar title="Finance" user={user} />
       <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6 pb-24">
 
@@ -167,7 +167,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
               <h3 className="text-sm font-semibold text-gray-900 mr-auto">Transactions</h3>
               <div className="relative">
                 <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <Input placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)}
+                <Input placeholder="Searchâ€¦" value={search} onChange={e => setSearch(e.target.value)}
                   className="pl-8 h-8 text-xs bg-gray-50 border-0 rounded-lg w-36" />
               </div>
               <Select value={filterCategory} onValueChange={v => setFilterCategory(v ?? 'all')}>
@@ -186,7 +186,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
               <div className="space-y-2">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-50 rounded-xl animate-pulse" />)}</div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-4xl mb-3">💳</p>
+                <p className="text-4xl mb-3">ðŸ’³</p>
                 <p className="text-gray-500 font-medium mb-1">No transactions</p>
                 <p className="text-gray-400 text-sm">Add your first transaction for this month</p>
               </div>
@@ -207,7 +207,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-900 leading-tight">{t.title}</p>
-                          <p className="text-xs text-gray-400">{t.category} · {format(new Date(t.date), 'MMM d')}</p>
+                          <p className="text-xs text-gray-400">{t.category} Â· {format(new Date(t.date), 'MMM d')}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -280,3 +280,4 @@ export function FinanceClient({ user }: FinanceClientProps) {
     </div>
   )
 }
+
