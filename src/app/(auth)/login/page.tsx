@@ -13,10 +13,19 @@ export default function LoginPage() {
     const supabase = createClient()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: false,
+      },
     })
-    if (error) { setLoading(null); return }
-    if (data.url) window.location.href = data.url
+    console.log('OAuth result:', { data, error })
+    if (error) { console.error('OAuth error:', error); setLoading(null); return }
+    if (data?.url) {
+      window.location.assign(data.url)
+    } else {
+      console.error('No URL returned from OAuth')
+      setLoading(null)
+    }
   }
 
   return (
