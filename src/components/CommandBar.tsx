@@ -120,13 +120,12 @@ export function CommandBar({ open, onClose }: CommandBarProps) {
       }
       await qc.invalidateQueries({ queryKey: [queryMap[parsed.type]?.[0]] })
 
-      const messages: Record<string, string> = {
-        finance: `💳 ${parsed.data.type === 'income' ? 'Income' : 'Expense'} recorded — RM${parsed.data.amount.toFixed(2)}`,
-        task: `✅ Task created — "${parsed.data.title}"`,
-        habit: `🔥 Habit added — ${parsed.data.emoji} ${parsed.data.name}`,
-        goal: `🎯 Goal set — "${parsed.data.title}"`,
-      }
-      toast.success(messages[parsed.type] ?? 'Saved!')
+      let message = 'Saved!'
+      if (parsed.type === 'finance') message = `💳 ${parsed.data.type === 'income' ? 'Income' : 'Expense'} recorded — RM${parsed.data.amount.toFixed(2)}`
+      else if (parsed.type === 'task') message = `✅ Task created — "${parsed.data.title}"`
+      else if (parsed.type === 'habit') message = `🔥 Habit added — ${parsed.data.emoji} ${parsed.data.name}`
+      else if (parsed.type === 'goal') message = `🎯 Goal set — "${parsed.data.title}"`
+      toast.success(message)
       onClose()
       setInput('')
       setParsed(null)
@@ -176,7 +175,7 @@ export function CommandBar({ open, onClose }: CommandBarProps) {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type anything… "Paid RM25 lunch", "Gym daily", "Finish report Friday""
+                  placeholder={`Type anything... "Paid RM25 lunch", "Gym daily", "Finish report Friday"`}
                   className="flex-1 text-sm text-gray-900 placeholder:text-gray-400 bg-transparent outline-none"
                 />
                 {input && (
