@@ -33,7 +33,17 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/goals') ||
     request.nextUrl.pathname.startsWith('/settings')
 
-  // login disabled — no auth redirects
+  if (!user && isDashboardRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  if (user && isAuthRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
 
   return supabaseResponse
 }
