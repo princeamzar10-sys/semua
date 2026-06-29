@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/layout/sidebar'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { KeyboardShortcut } from '@/components/KeyboardShortcut'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,6 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex-1 flex flex-col overflow-hidden">
         {children}
       </div>
+      <KeyboardShortcut />
     </div>
   )
 }
