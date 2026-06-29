@@ -30,7 +30,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
   const todayStr = format(now, 'yyyy-MM-dd')
 
   // Tasks
-  const todayTasks = tasks.filter(t => t.due_date && isToday(new Date(t.due_date)) && t.status !== 'completed')
+  const todayTasks = tasks.filter(t => t.due_date && isToday(parseISO(t.due_date)) && t.status !== 'completed')
   const overdueTasks = tasks.filter(t => t.due_date && isPast(parseISO(t.due_date)) && !isToday(parseISO(t.due_date)) && t.status !== 'completed')
   const focusTasks = [...overdueTasks.slice(0, 2), ...todayTasks.slice(0, 3)].slice(0, 5)
 
