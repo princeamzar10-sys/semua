@@ -34,11 +34,10 @@ export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
     })
   }
 
-  const todayTasks = ctx.tasks.filter(t => {
-    if (!t.due_date) return false
-    const due = new Date(t.due_date)
-    return format(due, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd') && t.status !== 'completed'
-  })
+  const todayStr = format(now, 'yyyy-MM-dd')
+  const todayTasks = ctx.tasks.filter(t =>
+    t.due_date && t.due_date === todayStr && t.status !== 'completed'
+  )
   if (todayTasks.length > 0) {
     suggestions.push({
       message: `${todayTasks.length} task${todayTasks.length > 1 ? 's' : ''} due today. Stay focused!`,
@@ -101,13 +100,12 @@ export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
   // Goal suggestions
   const nearDeadlineGoals = ctx.goals.filter(g => {
     if (!g.deadline || g.status !== 'active') return false
-    const deadline = new Date(g.deadline)
-    const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    const daysLeft = Math.ceil((parseISO(g.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     return daysLeft <= 7 && daysLeft > 0
   })
 
   nearDeadlineGoals.forEach(g => {
-    const daysLeft = Math.ceil((new Date(g.deadline!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    const daysLeft = Math.ceil((parseISO(g.deadline!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     suggestions.push({
       message: `Goal "${g.title}" deadline is in ${daysLeft} day${daysLeft > 1 ? 's' : ''}. Push harder!`,
       type: 'goal',
