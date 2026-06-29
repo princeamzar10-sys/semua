@@ -170,7 +170,6 @@ export function TasksClient({ user }: TasksClientProps) {
     if (next === 'completed') toast.success('Task completed!')
   }
 
-  const now = new Date()
   const filtered = tasks.filter(t => {
     const matchSearch = t.title.toLowerCase().includes(search.toLowerCase())
     const matchStatus = filterStatus === 'all' || t.status === filterStatus

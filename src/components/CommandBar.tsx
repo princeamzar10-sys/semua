@@ -118,7 +118,7 @@ export function CommandBar({ open, onClose }: CommandBarProps) {
         habit: ['habits'],
         goal: ['goals'],
       }
-      await qc.invalidateQueries({ queryKey: [queryMap[parsed.type]?.[0]] })
+      await qc.invalidateQueries({ queryKey: queryMap[parsed.type] })
 
       let message = 'Saved!'
       if (parsed.type === 'finance') message = `💳 ${parsed.data.type === 'income' ? 'Income' : 'Expense'} recorded — RM${parsed.data.amount.toFixed(2)}`

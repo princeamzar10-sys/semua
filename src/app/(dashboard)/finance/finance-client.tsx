@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { transactionSchema, TransactionFormData } from '@/lib/validations'
-import { format, startOfMonth, endOfMonth, isAfter, isBefore } from 'date-fns'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -47,9 +47,9 @@ export function FinanceClient({ user }: FinanceClientProps) {
   })
   const txType = watch('type')
 
-  const monthStart = startOfMonth(new Date(filterYear, filterMonth))
-  const monthEnd = endOfMonth(new Date(filterYear, filterMonth))
-  const monthly = transactions.filter(t => isAfter(new Date(t.date), monthStart) && isBefore(new Date(t.date), monthEnd))
+  const monthStart = format(startOfMonth(new Date(filterYear, filterMonth)), 'yyyy-MM-dd')
+  const monthEnd = format(endOfMonth(new Date(filterYear, filterMonth)), 'yyyy-MM-dd')
+  const monthly = transactions.filter(t => t.date >= monthStart && t.date <= monthEnd)
 
   const monthlyIncome = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const monthlyExpenses = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)

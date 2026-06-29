@@ -8,7 +8,7 @@ import { useHabits, useHabitLogs } from '@/hooks/use-habits'
 import { useGoals } from '@/hooks/use-goals'
 import { generateSuggestions } from '@/lib/ai-suggestions'
 import { CheckSquare, TrendingDown, TrendingUp, Wallet, Flame, Target, ChevronRight, AlertTriangle, Check } from 'lucide-react'
-import { format, isToday, isPast, startOfMonth, endOfMonth, isAfter, isBefore, subDays, parseISO } from 'date-fns'
+import { format, isToday, isPast, startOfMonth, endOfMonth, subDays, parseISO } from 'date-fns'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -21,12 +21,12 @@ export function DashboardClient({ user }: DashboardClientProps) {
   const { data: tasks = [] } = useTasks()
   const { data: transactions = [] } = useTransactions()
   const { data: habits = [] } = useHabits()
-  const { data: habitLogs = [] } = useHabitLogs()
+  const { data: habitLogs = [] } = useHabitLogs(format(subDays(new Date(), 30), 'yyyy-MM-dd'))
   const { data: goals = [] } = useGoals()
 
   const now = new Date()
-  const monthStart = startOfMonth(now)
-  const monthEnd = endOfMonth(now)
+  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd')
+  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd')
   const todayStr = format(now, 'yyyy-MM-dd')
 
   // Tasks
@@ -35,7 +35,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
   const focusTasks = [...overdueTasks.slice(0, 2), ...todayTasks.slice(0, 3)].slice(0, 5)
 
   // Finance
-  const monthly = transactions.filter(t => isAfter(new Date(t.date), monthStart) && isBefore(new Date(t.date), monthEnd))
+  const monthly = transactions.filter(t => t.date >= monthStart && t.date <= monthEnd)
   const monthlyIncome = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const monthlyExpenses = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
   const balance = monthlyIncome - monthlyExpenses

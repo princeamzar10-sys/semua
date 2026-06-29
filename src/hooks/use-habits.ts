@@ -61,8 +61,8 @@ export function useToggleHabit() {
           completed_at: new Date().toISOString(),
         })
       }
-      // Recalculate streak
-      await supabase.rpc('update_habit_streak', { p_habit_id: habitId })
+      // Recalculate streak (best-effort — ignore if RPC doesn't exist)
+      try { await supabase.rpc('update_habit_streak', { p_habit_id: habitId }) } catch { }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['habits'] })
