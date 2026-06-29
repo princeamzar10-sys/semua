@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -129,7 +129,7 @@ export function AssistantPanel() {
 
       const allOk = results.every((r: { success: boolean }) => r.success)
       if (allOk) toast.success('All actions completed!')
-      else toast.error('Some actions failed â€” check the results.')
+      else toast.error('Some actions failed — check the results.')
     } catch {
       toast.error('Failed to execute actions')
     } finally {
@@ -178,7 +178,7 @@ export function AssistantPanel() {
             </div>
             <div>
               <p className="text-gray-800 font-medium mb-1">What can I help you with?</p>
-              <p className="text-gray-400 text-sm">Add tasks, log expenses, track habits â€” just say it naturally.</p>
+              <p className="text-gray-400 text-sm">Add tasks, log expenses, track habits — just say it naturally.</p>
             </div>
             <div className="flex flex-col gap-2 w-full max-w-sm">
               {EXAMPLES.map((ex) => (
@@ -228,7 +228,7 @@ export function AssistantPanel() {
         {loading && (
           <div className="flex items-center gap-2 text-gray-400 text-sm">
             <Loader2 size={14} className="animate-spin" />
-            <span>Thinkingâ€¦</span>
+            <span>Thinking…</span>
           </div>
         )}
 
@@ -244,7 +244,7 @@ export function AssistantPanel() {
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={loading || executing}
-            placeholder="Ask me anything or give me a commandâ€¦"
+            placeholder="Ask me anything or give me a command…"
             rows={1}
             className="flex-1 resize-none rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400 focus:bg-white disabled:opacity-50 max-h-32 overflow-y-auto transition-colors"
             style={{ height: 'auto' }}
@@ -262,9 +262,8 @@ export function AssistantPanel() {
             <Send size={16} className="text-black" />
           </button>
         </div>
-        <p className="text-xs text-zinc-600 mt-2">Enter to send Â· Shift+Enter for new line</p>
+        <p className="text-xs text-zinc-600 mt-2">Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   )
 }
-

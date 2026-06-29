@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
@@ -112,7 +112,7 @@ export function GoalsClient({ user }: GoalsClientProps) {
           </div>
         ) : goals.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="text-5xl mb-4">ðŸŽ¯</div>
+            <div className="text-5xl mb-4">🎯</div>
             <p className="text-gray-500 font-medium mb-1">No goals yet</p>
             <p className="text-gray-400 text-sm mb-4">Set your first goal and start tracking progress</p>
             <Button onClick={openCreate} className="rounded-xl bg-black hover:bg-gray-800 text-white gap-2">
@@ -238,4 +238,3 @@ export function GoalsClient({ user }: GoalsClientProps) {
     </div>
   )
 }
-

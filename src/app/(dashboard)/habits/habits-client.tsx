@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
@@ -16,7 +16,7 @@ import { format, subDays } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
-const EMOJIS = ['ðŸƒ', 'ðŸ’ª', 'ðŸ“š', 'ðŸ§˜', 'ðŸ’§', 'ðŸ¥—', 'ðŸ˜´', 'ðŸŽ¯', 'âœï¸', 'ðŸŽµ', 'ðŸŒ¿', 'ðŸ’Š']
+const EMOJIS = ['🏃', '💪', '📚', '🧘', '💧', '🥗', '😴', '🎯', '✍️', '🎵', '🌿', '💊']
 
 interface HabitsClientProps {
   user: { id: string; email?: string; full_name?: string | null; avatar_url?: string | null }
@@ -32,7 +32,7 @@ export function HabitsClient({ user }: HabitsClientProps) {
 
   const { register, handleSubmit, reset, setValue, watch } = useForm<HabitFormData>({
     resolver: zodResolver(habitSchema),
-    defaultValues: { frequency: 'daily', emoji: 'ðŸŽ¯' },
+    defaultValues: { frequency: 'daily', emoji: '🎯' },
   })
   const selectedEmoji = watch('emoji')
 
@@ -96,7 +96,7 @@ export function HabitsClient({ user }: HabitsClientProps) {
           </div>
         ) : habits.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="text-5xl mb-4">ðŸŒ±</div>
+            <div className="text-5xl mb-4">🌱</div>
             <p className="text-gray-500 font-medium mb-1">No habits yet</p>
             <p className="text-gray-400 text-sm mb-4">Start building your first routine</p>
             <Button onClick={() => setOpen(true)} className="rounded-xl bg-black hover:bg-gray-800 text-white gap-2">
@@ -176,7 +176,7 @@ export function HabitsClient({ user }: HabitsClientProps) {
                         doneToday ? 'bg-black text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                       )}
                     >
-                      {doneToday ? 'âœ“ Completed Today' : 'Mark as Done'}
+                      {doneToday ? '✓ Completed Today' : 'Mark as Done'}
                     </button>
                   </motion.div>
                 )
@@ -227,4 +227,3 @@ export function HabitsClient({ user }: HabitsClientProps) {
     </div>
   )
 }
-
