@@ -6,7 +6,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) redirect('/')
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FB]">

@@ -32,6 +32,17 @@ export function useCreateTransaction() {
   })
 }
 
+export function useUpdateTransaction() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<TransactionFormData> }) => {
+      const { error } = await supabase.from('finance_transactions').update(data).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+  })
+}
+
 export function useDeleteTransaction() {
   const qc = useQueryClient()
   return useMutation({
