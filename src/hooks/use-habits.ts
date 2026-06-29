@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { Habit, HabitLog } from '@/types'
 import { HabitFormData } from '@/lib/validations'
-import { format } from 'date-fns'
 
 const supabase = createClient()
 
