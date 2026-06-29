@@ -164,7 +164,7 @@ export function AssistantPanel() {
           <Sparkles size={16} className="text-white" />
         </div>
         <div>
-          <h1 className="text-sm font-semibold text-zinc-100">AI Assistant</h1>
+          <h1 className="text-sm font-semibold text-zinc-100">AI Agent</h1>
           <p className="text-xs text-zinc-500">Powered by Gemini 2.5 Flash</p>
         </div>
       </div>

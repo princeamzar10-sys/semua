@@ -18,7 +18,7 @@ const navItems = [
   { href: '/finance', icon: DollarSign, label: 'Finance' },
   { href: '/habits', icon: Repeat, label: 'Habits' },
   { href: '/goals', icon: Target, label: 'Goals' },
-  { href: '/assistant', icon: Bot, label: 'AI Assistant' },
+  { href: '/assistant', icon: Bot, label: 'AI Agent' },
 ]
 
 export function Sidebar() {
