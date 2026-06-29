@@ -26,9 +26,13 @@ export function SettingsClient({ user }: SettingsClientProps) {
   const saveProfile = async () => {
     setSaving(true)
     const supabase = createClient()
-    await supabase.from('users').upsert({ id: user.id, full_name: displayName, updated_at: new Date().toISOString() })
+    await Promise.all([
+      supabase.from('users').upsert({ id: user.id, full_name: displayName, updated_at: new Date().toISOString() }),
+      supabase.auth.updateUser({ data: { full_name: displayName } }),
+    ])
     setSaving(false)
     setSaved(true)
+    router.refresh()
     setTimeout(() => setSaved(false), 2000)
   }
 
