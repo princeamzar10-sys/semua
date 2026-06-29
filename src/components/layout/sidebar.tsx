@@ -92,7 +92,7 @@ export function Sidebar() {
             return (
               <Link key={href} href={href}>
                 <motion.div
-                  whileHover={{ backgroundColor: '#f3f4f6' }}
+                  whileHover={active ? {} : { backgroundColor: '#f3f4f6' }}
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors',
                     active ? 'bg-black text-white' : 'text-gray-500 hover:text-gray-900'
@@ -121,10 +121,10 @@ export function Sidebar() {
         <div className="py-4 px-2 border-t border-gray-100 space-y-0.5">
           <Link href="/settings">
             <motion.div
-              whileHover={{ backgroundColor: '#f3f4f6' }}
+              whileHover={pathname === '/settings' ? {} : { backgroundColor: '#f3f4f6' }}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-gray-500 hover:text-gray-900',
-                pathname === '/settings' && 'bg-black text-white hover:!bg-black'
+                pathname === '/settings' && 'bg-black text-white'
               )}
             >
               <Settings size={18} className="shrink-0" />

@@ -157,15 +157,15 @@ export function AssistantPanel() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950 text-zinc-100">
+    <div className="flex flex-col h-full bg-[#F9FAFB] text-gray-900">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+      <div className="px-6 py-4 border-b border-gray-100 bg-white flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
           <Sparkles size={16} className="text-white" />
         </div>
         <div>
-          <h1 className="text-sm font-semibold text-zinc-100">AI Agent</h1>
-          <p className="text-xs text-zinc-500">Powered by Gemini 2.5 Flash</p>
+          <h1 className="text-sm font-semibold text-gray-900">AI Agent</h1>
+          <p className="text-xs text-gray-400">Powered by Gemini 2.5 Flash</p>
         </div>
       </div>
 
@@ -173,19 +173,19 @@ export function AssistantPanel() {
       <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center py-12">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-indigo-600/20 border border-violet-500/20 flex items-center justify-center">
-              <Sparkles size={28} className="text-violet-400" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-100 to-indigo-100 border border-violet-200 flex items-center justify-center">
+              <Sparkles size={28} className="text-violet-500" />
             </div>
             <div>
-              <p className="text-zinc-200 font-medium mb-1">What can I help you with?</p>
-              <p className="text-zinc-500 text-sm">Add tasks, log expenses, track habits — just say it naturally.</p>
+              <p className="text-gray-800 font-medium mb-1">What can I help you with?</p>
+              <p className="text-gray-400 text-sm">Add tasks, log expenses, track habits — just say it naturally.</p>
             </div>
             <div className="flex flex-col gap-2 w-full max-w-sm">
               {EXAMPLES.map((ex) => (
                 <button
                   key={ex}
                   onClick={() => sendMessage(ex)}
-                  className="text-left text-sm px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors"
+                  className="text-left text-sm px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 hover:shadow-sm transition-all"
                 >
                   {ex}
                 </button>
@@ -226,7 +226,7 @@ export function AssistantPanel() {
         </AnimatePresence>
 
         {loading && (
-          <div className="flex items-center gap-2 text-zinc-500 text-sm">
+          <div className="flex items-center gap-2 text-gray-400 text-sm">
             <Loader2 size={14} className="animate-spin" />
             <span>Thinking…</span>
           </div>
@@ -236,7 +236,7 @@ export function AssistantPanel() {
       </div>
 
       {/* Input */}
-      <div className="px-6 py-4 border-t border-zinc-800">
+      <div className="px-6 py-4 border-t border-gray-100 bg-white">
         <div className="flex gap-3 items-end">
           <textarea
             ref={inputRef}
@@ -246,7 +246,7 @@ export function AssistantPanel() {
             disabled={loading || executing}
             placeholder="Ask me anything or give me a command…"
             rows={1}
-            className="flex-1 resize-none rounded-xl bg-zinc-900 border border-zinc-700 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 disabled:opacity-50 max-h-32 overflow-y-auto"
+            className="flex-1 resize-none rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400 focus:bg-white disabled:opacity-50 max-h-32 overflow-y-auto transition-colors"
             style={{ height: 'auto' }}
             onInput={e => {
               const t = e.target as HTMLTextAreaElement
