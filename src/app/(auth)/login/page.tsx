@@ -11,10 +11,12 @@ export default function LoginPage() {
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setLoading(provider)
     const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
+    if (error) { setLoading(null); return }
+    if (data.url) window.location.href = data.url
   }
 
   return (
