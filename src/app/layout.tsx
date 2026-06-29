@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/layout/providers'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased bg-[#F8F9FB] min-h-screen">
         <Providers>{children}</Providers>
         <Analytics />
+        <SpeedInsights />
         <Toaster position="bottom-right" richColors />
       </body>
     </html>
