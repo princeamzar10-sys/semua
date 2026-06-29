@@ -91,11 +91,12 @@ export function Sidebar() {
             const active = pathname === href || pathname.startsWith(href + '/')
             return (
               <Link key={href} href={href}>
-                <motion.div
-                  whileHover={active ? {} : { backgroundColor: '#f3f4f6' }}
+                <div
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors',
-                    active ? 'bg-black text-white' : 'text-gray-500 hover:text-gray-900'
+                    active
+                      ? 'bg-black text-white'
+                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                   )}
                 >
                   <Icon className="w-4.5 h-4.5 shrink-0" size={18} />
@@ -111,7 +112,7 @@ export function Sidebar() {
                       </motion.span>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                </div>
               </Link>
             )
           })}
@@ -120,11 +121,12 @@ export function Sidebar() {
         {/* Bottom */}
         <div className="py-4 px-2 border-t border-gray-100 space-y-0.5">
           <Link href="/settings">
-            <motion.div
-              whileHover={pathname === '/settings' ? {} : { backgroundColor: '#f3f4f6' }}
+            <div
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-gray-500 hover:text-gray-900',
-                pathname === '/settings' && 'bg-black text-white'
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors',
+                pathname === '/settings'
+                  ? 'bg-black text-white'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
               )}
             >
               <Settings size={18} className="shrink-0" />
@@ -135,7 +137,7 @@ export function Sidebar() {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           </Link>
           <motion.button
             whileHover={{ backgroundColor: '#f3f4f6' }}
