@@ -16,21 +16,31 @@ interface SettingsClientProps {
 export function SettingsClient({ user }: SettingsClientProps) {
   const router = useRouter()
   const [displayName, setDisplayName] = useState(user.full_name ?? '')
+  const [savedName, setSavedName] = useState(user.full_name ?? '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const initials = user.full_name
-    ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const initials = savedName
+    ? savedName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : user.email?.[0]?.toUpperCase() ?? 'U'
 
   const saveProfile = async () => {
     setSaving(true)
+    setError(null)
     const supabase = createClient()
-    await Promise.all([
-      supabase.from('users').upsert({ id: user.id, full_name: displayName, updated_at: new Date().toISOString() }),
+
+    const [{ error: dbErr }, { error: authErr }] = await Promise.all([
+      supabase.from('users').upsert({ id: user.id, full_name: displayName, email: user.email, updated_at: new Date().toISOString() }),
       supabase.auth.updateUser({ data: { full_name: displayName } }),
     ])
+
     setSaving(false)
+    if (dbErr || authErr) {
+      setError((dbErr ?? authErr)?.message ?? 'Failed to save')
+      return
+    }
+    setSavedName(displayName)
     setSaved(true)
     router.refresh()
     setTimeout(() => setSaved(false), 2000)
@@ -52,7 +62,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <Topbar title="Settings" user={user} />
+      <Topbar title="Settings" user={{ ...user, full_name: savedName }} />
       <main className="flex-1 overflow-y-auto p-6 max-w-lg">
         <div className="space-y-5">
           {/* Profile */}
@@ -64,7 +74,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
                 <AvatarFallback className="bg-black text-white text-lg font-semibold">{initials}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium text-gray-900">{user.full_name ?? 'Your Name'}</p>
+                <p className="text-sm font-medium text-gray-900">{savedName || 'Your Name'}</p>
                 <p className="text-xs text-gray-400">{user.email}</p>
               </div>
             </div>
@@ -78,6 +88,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
                   className="rounded-xl"
                 />
               </div>
+              {error && <p className="text-xs text-red-500">{error}</p>}
               <Button onClick={saveProfile} disabled={saving} className="rounded-xl bg-black hover:bg-gray-800 text-white">
                 {saved ? '✓ Saved' : saving ? 'Saving…' : 'Save Changes'}
               </Button>
