@@ -1,4 +1,4 @@
-import { Priority } from '@/features/tasks/types'
+import { Priority } from '@/features/personal/tasks/types'
 
 export const PRIORITY_OPTIONS: Priority[] = ['low', 'medium', 'high', 'urgent']
 

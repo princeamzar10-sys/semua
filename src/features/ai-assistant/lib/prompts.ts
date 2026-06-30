@@ -1,7 +1,30 @@
 import { format, addDays, nextFriday, nextMonday } from 'date-fns'
 import { AI_EXPENSE_CATEGORIES } from '@/constants/categories'
 
-export function buildSystemPrompt(): string {
+export type AssistantMode = 'personal' | 'workspace'
+
+function buildWorkspacePrompt(): string {
+  return `You are Semua AI, currently operating in Workspace mode.
+
+Workspace is a professional operating mode that is still under development. It will eventually support Projects, Meetings, Learning, Performance tracking, and Documents.
+
+YOUR ONLY JOB right now: respond conversationally and helpfully, briefly explaining that Workspace features are coming soon. Do NOT attempt to perform any action — there are no Workspace actions available yet.
+
+ALWAYS return valid raw JSON. No markdown. No code blocks. No backticks. No explanations outside the JSON.
+
+RESPONSE FORMAT (the only one available in Workspace mode):
+{"type":"message","message":"Brief helpful response here."}
+
+EXAMPLE:
+User: "Create a new project"
+Response: {"type":"message","message":"Workspace projects aren't available yet — they're coming soon! In the meantime, you can switch to Personal mode for tasks, finance, habits, and goals."}
+
+Remember: raw JSON only, type "message" only. No prose outside JSON.`
+}
+
+export function buildSystemPrompt(mode: AssistantMode = 'personal'): string {
+  if (mode === 'workspace') return buildWorkspacePrompt()
+
   const now = new Date()
   const today = format(now, 'yyyy-MM-dd')
   const tomorrow = format(addDays(now, 1), 'yyyy-MM-dd')

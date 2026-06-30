@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Topbar } from '@/components/layout/topbar'
-import { useTransactions, useCreateTransaction, useUpdateTransaction, useDeleteTransaction } from '@/features/finance/hooks/use-finance'
-import { FinanceTransaction } from '@/features/finance/types'
+import { useTransactions, useCreateTransaction, useUpdateTransaction, useDeleteTransaction } from '@/features/personal/finance/hooks/use-finance'
+import { FinanceTransaction } from '@/features/personal/finance/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Pencil, TrendingUp, TrendingDown, Wallet, Search, Lightbulb } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,7 @@ import { formatCurrency } from '@/utils/format-currency'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { TransactionDialog } from '@/features/finance/components/TransactionDialog'
+import { TransactionDialog } from '@/features/personal/finance/components/TransactionDialog'
 
 const COLORS = ['#111', '#6b7280', '#93c5fd', '#86efac', '#fcd34d', '#f87171', '#c4b5fd', '#fdba74']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -33,6 +34,9 @@ export function FinanceClient({ user }: FinanceClientProps) {
   const updateTx = useUpdateTransaction()
   const deleteTx = useDeleteTransaction()
 
+  const searchParams = useSearchParams()
+  const initialType = searchParams.get('type')
+
   const now = new Date()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<FinanceTransaction | null>(null)
@@ -40,6 +44,9 @@ export function FinanceClient({ user }: FinanceClientProps) {
   const [filterMonth, setFilterMonth] = useState(now.getMonth())
   const [filterYear] = useState(now.getFullYear())
   const [filterCategory, setFilterCategory] = useState('all')
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>(
+    initialType === 'income' || initialType === 'expense' ? initialType : 'all'
+  )
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
@@ -63,7 +70,8 @@ export function FinanceClient({ user }: FinanceClientProps) {
   const filtered = monthly.filter(t => {
     const matchSearch = t.title.toLowerCase().includes(search.toLowerCase()) || t.category.toLowerCase().includes(search.toLowerCase())
     const matchCat = filterCategory === 'all' || t.category === filterCategory
-    return matchSearch && matchCat
+    const matchType = filterType === 'all' || t.type === filterType
+    return matchSearch && matchCat && matchType
   })
 
   const openCreate = () => { setEditing(null); reset({ type: 'expense', date: format(now, 'yyyy-MM-dd') }); setOpen(true) }
@@ -169,6 +177,14 @@ export function FinanceClient({ user }: FinanceClientProps) {
                 <Input placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)}
                   className="pl-8 h-8 text-xs bg-gray-50 border-0 rounded-lg w-36" />
               </div>
+              <Select value={filterType} onValueChange={v => setFilterType((v as 'all' | 'income' | 'expense') ?? 'all')}>
+                <SelectTrigger className="w-24 h-8 text-xs rounded-lg border-gray-200"><SelectValue placeholder="Type" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="expense">Expenses</SelectItem>
+                  <SelectItem value="income">Income</SelectItem>
+                </SelectContent>
+              </Select>
               <Select value={filterCategory} onValueChange={v => setFilterCategory(v ?? 'all')}>
                 <SelectTrigger className="w-28 h-8 text-xs rounded-lg border-gray-200"><SelectValue placeholder="Category" /></SelectTrigger>
                 <SelectContent>

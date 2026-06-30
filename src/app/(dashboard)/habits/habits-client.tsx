@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
-import { useHabits, useCreateHabit, useToggleHabit, useDeleteHabit, useHabitLogs } from '@/features/habits/hooks/use-habits'
-import { HabitHeatmapRow } from '@/features/habits/components/HabitHeatmapRow'
-import { HabitDialog } from '@/features/habits/components/HabitDialog'
+import { useHabits, useCreateHabit, useToggleHabit, useDeleteHabit, useHabitLogs } from '@/features/personal/habits/hooks/use-habits'
+import { HabitHeatmapRow } from '@/features/personal/habits/components/HabitHeatmapRow'
+import { HabitDialog } from '@/features/personal/habits/components/HabitDialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Flame, TrendingUp, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'

@@ -1,6 +1,6 @@
 # Semua — Architecture Map
 
-> Snapshot taken immediately after the feature-based refactor (pre Personal/Workspace modules). See [wiki/Changelog.md](wiki/Changelog.md) for prior history and [wiki/Folder-Structure.md](wiki/Folder-Structure.md) for the older (pre-refactor) layout this document supersedes.
+> Updated after the Personal/Workspace mode switch was built and `tasks/finance/habits/goals` were physically nested under `features/personal/`. See [wiki/Changelog.md](wiki/Changelog.md) for prior history and [wiki/Folder-Structure.md](wiki/Folder-Structure.md) for the older (pre-Personal-OS) layout this document supersedes.
 
 ---
 
@@ -13,38 +13,47 @@ semua/
 │   ├── app/                          # Next.js App Router — ROUTES ONLY
 │   │   ├── (auth)/login/page.tsx     # /login — public auth page
 │   │   ├── (dashboard)/              # authenticated route group, shared layout
-│   │   │   ├── layout.tsx            # auth guard + Sidebar + Topbar shell
+│   │   │   ├── layout.tsx            # auth guard + ModeProvider + QuickAddProvider + top mode bar + Sidebar/MobileBottomNav shell
 │   │   │   ├── dashboard/{page.tsx, dashboard-client.tsx}
 │   │   │   ├── tasks/{page.tsx, tasks-client.tsx}
 │   │   │   ├── finance/{page.tsx, finance-client.tsx}
 │   │   │   ├── habits/{page.tsx, habits-client.tsx}
 │   │   │   ├── goals/{page.tsx, goals-client.tsx}
 │   │   │   ├── settings/{page.tsx, settings-client.tsx}
-│   │   │   └── assistant/page.tsx    # AI Agent page
+│   │   │   ├── assistant/page.tsx    # AI Agent page (live Gemini integration)
+│   │   │   └── workspace/page.tsx    # Workspace placeholder route
 │   │   ├── api/assistant/{route.ts, execute/route.ts}   # Gemini + action execution endpoints
 │   │   ├── auth/callback/route.ts    # Supabase OAuth callback
 │   │   ├── layout.tsx, global-error.tsx, page.tsx
 │   │
-│   ├── features/                     # FEATURE-BASED MODULES (the core of this refactor)
-│   │   ├── tasks/         {components, hooks, services, types}
-│   │   ├── finance/       {components, hooks, services, types}
-│   │   ├── habits/        {components, hooks, services, types}
-│   │   ├── goals/         {components, hooks, services, types}
-│   │   ├── dashboard/     {components}            # StatCard, ai-widget — dashboard-only presentational pieces
-│   │   ├── ai-assistant/  {components, lib, lib/tools}  # Gemini client, prompts, response parser, Action Router, per-domain tool executors
-│   │   ├── authentication/{services}              # Supabase client/server/middleware builders
-│   │   └── command-bar/   {components, lib}        # Cmd+K quick-add: NL parser + legacy direct-insert handler
+│   ├── features/                     # FEATURE-BASED MODULES, one per operating mode or cross-cutting concern
+│   │   ├── personal/                 # 🏠 Personal mode — everything that was once top-level trackers now lives here
+│   │   │   ├── nav.config.ts         # personalNavSections — registered into nav-registry, not hardcoded in the sidebar
+│   │   │   ├── tasks/      {components, hooks, services, types}
+│   │   │   ├── finance/    {components, hooks, services, types}
+│   │   │   ├── habits/     {components, hooks, services, types}
+│   │   │   └── goals/      {components, hooks, services, types}
+│   │   ├── workspace/                # 💼 Workspace mode — placeholder only
+│   │   │   ├── nav.config.ts         # workspaceNavSections (all disabled "Soon" items except Dashboard/Assistant/Settings)
+│   │   │   └── components/WorkspacePlaceholder.tsx
+│   │   ├── dashboard/     {components}            # StatCard, ai-widget — dashboard-only presentational pieces, used by Personal's dashboard
+│   │   ├── ai-assistant/  {components, lib, lib/tools}  # Gemini client, mode-aware prompts, response parser, Action Router, per-domain tool executors
+│   │   ├── authentication/{services}              # Supabase client/server/middleware builders — the one feature everything else may depend on
+│   │   └── command-bar/   {components, lib}        # Quick Add: NL parser + direct-insert handler, triggered via shared QuickAddContext
 │   │
-│   ├── components/                   # TRULY CROSS-FEATURE, presentational-only
+│   ├── components/                   # TRULY CROSS-FEATURE, presentational-only — shared by both Personal and Workspace
 │   │   ├── ui/                       # shadcn primitives (button, dialog, select, ...) — never hand-edited
-│   │   ├── layout/                   # Sidebar, Topbar, Providers — app shell, used by every route
+│   │   ├── layout/                   # Topbar, Providers — per-page chrome, used by every route
+│   │   ├── sidebar/                  # Sidebar.tsx (mode-aware, registry-driven), MobileBottomNav.tsx
+│   │   ├── mode-switch/              # ModeSwitch.tsx — the Personal/Workspace segmented control
+│   │   ├── navigation/               # mode-context.tsx (ModeProvider/useMode), quick-add-context.tsx (QuickAddProvider/useQuickAdd), nav-registry.ts (NavItem/NavSection types + getNavSections())
+│   │   ├── quick-add/                # QuickAddFAB.tsx, QuickAddRoot.tsx — single shared CommandBar mount + floating trigger
 │   │   └── landing/                  # Public landing page sections
 │   │
 │   ├── constants/                    # Shared, single-source-of-truth values
 │   │   ├── categories.ts             # expense/income categories + currency symbol + guessCategory()
 │   │   ├── habit-emoji.ts            # merged emoji keyword map + guessHabitEmoji()
-│   │   ├── priority.ts               # task priority options + color classes
-│   │   └── routes.ts                 # sidebar NAV_ITEMS
+│   │   └── priority.ts               # task priority options + color classes
 │   │
 │   ├── utils/                        # Shared, pure helper functions
 │   │   ├── format-currency.ts        # formatCurrency(amount, decimals?)
@@ -53,7 +62,7 @@ semua/
 │   │
 │   ├── lib/                          # Cross-cutting, framework-level utilities (NOT feature-specific)
 │   │   ├── utils.ts                  # cn() — shadcn's required Tailwind class merger
-│   │   ├── validations.ts            # Zod schemas (taskSchema, transactionSchema, habitSchema, goalSchema) — shared by every feature's forms
+│   │   ├── validations.ts            # Zod schemas (taskSchema, transactionSchema, habitSchema, goalSchema) — shared by every Personal module's forms
 │   │   └── ai-suggestions.ts         # rule-based dashboard suggestion engine (heuristics, not LLM)
 │   │
 │   ├── types/index.ts                # ONLY truly global types: User, AISuggestion, DashboardStats
@@ -65,26 +74,34 @@ semua/
 
 ### Why this shape
 
-- **`features/*`** is the unit of future growth. Every new module (Personal, Workspace, Tax, Calendar, Documents, Learning, Projects) gets its own `features/<name>/{components,hooks,services,types,constants}` folder and nothing else needs to change.
-- **`components/`** is reserved for things with zero feature-specific knowledge — shadcn primitives and the app shell. If a component imports a feature hook or service, it belongs inside that feature's `components/`, not here.
-- **`constants/` and `utils/`** hold values and pure functions used by *more than one* feature. Single-feature constants live inside that feature folder instead (e.g. task priority colors could have stayed feature-local, but were promoted here since other future modules — e.g. Projects — will likely need priority levels too).
-- **`lib/`** is intentionally small and is for things tied to the framework/build toolchain (`cn()` is a shadcn CLI convention) or truly used everywhere (`validations.ts` — every feature's create/edit form imports it).
+- **`features/personal/{tasks,finance,habits,goals}`** are physically nested — a deliberate change from the prior version of this document, which kept them at top-level `src/features/*` to protect feature-independence. That tradeoff was revisited and the literal mode-ownership tree was adopted instead: these four are Personal-mode-only modules and now live where they conceptually belong. The independence rule itself (point 2 in the Dependency Graph below) still holds — they still never import each other, they're just colocated under their owning mode now.
+- **`features/workspace`** mirrors `features/personal`'s shape at the mode level (`nav.config.ts` + its own components) so that when real Workspace modules (Projects, Meetings, etc.) are built, each becomes `features/workspace/<module>/{components,hooks,services,types}` — exactly the same pattern Personal already demonstrates.
+- **`components/navigation`, `components/mode-switch`, `components/quick-add`, `components/sidebar`** are mode-switching infrastructure — they know about *both* modes (via the registry) but contain no Personal- or Workspace-specific business logic themselves. This is what "shared infrastructure stays outside the mode folders" means in practice.
+- **`components/`** (the rest) is reserved for things with zero feature-specific knowledge — shadcn primitives and per-page chrome. If a component imports a feature hook or service, it belongs inside that feature's `components/`, not here.
+- **`constants/` and `utils/`** hold values and pure functions used by *more than one* feature/mode.
+- **`lib/`** is intentionally small and is for things tied to the framework/build toolchain (`cn()` is a shadcn CLI convention) or truly used everywhere (`validations.ts`).
 
 ---
 
 ## 2. Dependency Graph
 
-Arrows mean "imports from." Built by grepping every `@/features/*` import across the tree.
+Arrows mean "imports from." Built by grepping every `@/features/*` and `@/components/{navigation,mode-switch,quick-add,sidebar}/*` import across the tree.
 
 ```mermaid
 graph LR
     APP["src/app/* (routes)"]
 
-    subgraph Domain Features
-        TASKS[tasks]
-        FINANCE[finance]
-        HABITS[habits]
-        GOALS[goals]
+    subgraph Personal Mode
+        TASKS[personal/tasks]
+        FINANCE[personal/finance]
+        HABITS[personal/habits]
+        GOALS[personal/goals]
+        PNAV[personal/nav.config]
+    end
+
+    subgraph Workspace Mode
+        WPLACEHOLDER[workspace/components]
+        WNAV[workspace/nav.config]
     end
 
     subgraph Cross-cutting Features
@@ -94,7 +111,12 @@ graph LR
         DASH[dashboard]
     end
 
-    LAYOUT["components/layout (Sidebar, Topbar)"]
+    subgraph Mode-switching Infrastructure
+        NAVREG["components/navigation (mode-context, quick-add-context, nav-registry)"]
+        MODESWITCH[components/mode-switch]
+        QUICKADD[components/quick-add]
+        SIDEBAR[components/sidebar]
+    end
 
     APP --> TASKS
     APP --> FINANCE
@@ -104,6 +126,7 @@ graph LR
     APP --> CMDBAR
     APP --> DASH
     APP --> AUTH
+    APP --> WPLACEHOLDER
 
     TASKS --> AUTH
     FINANCE --> AUTH
@@ -111,8 +134,12 @@ graph LR
     GOALS --> AUTH
     CMDBAR --> AUTH
 
-    LAYOUT --> AUTH
-    LAYOUT --> CMDBAR
+    NAVREG --> PNAV
+    NAVREG --> WNAV
+    SIDEBAR --> NAVREG
+    MODESWITCH --> NAVREG
+    QUICKADD --> NAVREG
+    QUICKADD --> CMDBAR
 
     AI -.->|"via API route, not direct import"| AUTH
 ```
@@ -120,10 +147,11 @@ graph LR
 ### Rules this graph reveals (and should stay true going forward)
 
 1. **`authentication` is the only feature every other feature is allowed to depend on.** It has zero dependencies itself — it's the foundation (Supabase client/server/middleware builders).
-2. **`tasks`, `finance`, `habits`, `goals` never import each other.** Each is fully self-contained (own hook, service, types, components). This is what makes them safe to delete or replace independently.
-3. **`ai-assistant` does not import other domain features directly.** It receives an already-authenticated Supabase client inside the API route (`src/app/api/assistant/*`) and talks to `tasks`/`finance`/`habits`/`goals` tables only through its own `lib/tools/*.ts` executors — it does NOT call into `features/tasks/services/*`. This is intentional: the AI tool executors have different validation/fuzzy-lookup needs than the UI hooks, so they stay separate rather than sharing a service layer. **This is the one place a future "shared domain service" consolidation could pay off** (see Technical Debt).
-4. **`command-bar` depends on `authentication` only** — its legacy `commandHandler.ts` does its own direct Supabase inserts rather than calling feature services, mirroring point 3.
-5. **`dashboard`** has no feature dependencies — it only holds presentational components (`StatCard`, `ai-widget`) that receive data as props from `dashboard-client.tsx`, which itself pulls from `tasks`/`finance`/`habits`/`goals` hooks at the route level.
+2. **`personal/tasks`, `personal/finance`, `personal/habits`, `personal/goals` never import each other**, even though they're now siblings under the same mode folder. Each is fully self-contained (own hook, service, types, components). This is what makes them safe to delete or replace independently — nesting them under `personal/` changed *where* they live, not *how* they're allowed to depend on one another.
+3. **`ai-assistant` does not import domain features directly.** It receives an already-authenticated Supabase client inside the API route (`src/app/api/assistant/*`) and talks to `tasks`/`finance`/`habits`/`goals` tables only through its own `lib/tools/*.ts` executors — it does NOT call into `features/personal/tasks/services/*`. The AI tool executors have different validation/fuzzy-lookup needs than the UI hooks, so they stay separate rather than sharing a service layer. **This is the one place a future "shared domain service" consolidation could pay off** (see Technical Debt). `buildSystemPrompt(mode)` is mode-aware (Personal gets full tool access, Workspace gets a conversational-only prompt) but still doesn't import Personal/Workspace feature code — mode is passed as a plain string parameter from `AssistantPanel` via `useMode()`.
+4. **`command-bar` depends on `authentication` only** — it does its own direct Supabase inserts rather than calling Personal's feature services. `components/quick-add` wraps it (shared trigger context + floating button) without `command-bar` needing to know about modes at all.
+5. **`dashboard`** has no feature dependencies — it only holds presentational components (`StatCard`, `ai-widget`) that receive data as props from `dashboard-client.tsx` (which lives in `app/(dashboard)/dashboard/`, not inside `features/personal/`, since it composes data from all four Personal modules at the route level — composition root, not a feature itself).
+6. **Mode-switching infrastructure (`components/navigation`, `mode-switch`, `quick-add`, `sidebar`) is the only code allowed to import from *both* `features/personal` and `features/workspace`** (via their `nav.config.ts` exports) — this is the intentional, single crossing point between the two modes. No other file should import from both.
 
 ---
 
@@ -168,9 +196,10 @@ Do a real profiling pass (React DevTools Profiler + Lighthouse) once 1-2 more fe
 
 ## 5. Using This Document for New Modules
 
-When adding **Personal**, **Workspace**, or any future module:
+When adding a new **Personal** module (e.g. Calendar, Tax) or a real **Workspace** module (e.g. Projects, Meetings):
 
-1. Create `src/features/<module>/{components,hooks,services,types,constants}` — only the subfolders you actually need.
-2. The new feature may depend on `authentication` and on shared `constants/`/`utils/`/`lib/`. It should **not** depend on `tasks`/`finance`/`habits`/`goals`/`ai-assistant` directly — if cross-feature data sharing is needed, surface it through a route-level composition (like `dashboard-client.tsx` does today) rather than a feature-to-feature import.
-3. If the new module needs AI actions, add executors under `features/ai-assistant/lib/tools/<module>.ts` and register them in `actionRouter.ts` + the system prompt in `prompts.ts` — do not create a second AI integration path.
-4. Reuse `formatCurrency`, `getMonthRange`, `findByName` (now safe to adopt — new modules won't carry legacy error-text constraints), and the `constants/priority.ts`-style pattern for any new shared enums.
+1. Create `src/features/<mode>/<module>/{components,hooks,services,types}` — e.g. `features/personal/calendar/` or `features/workspace/projects/` — only the subfolders you actually need. Follow the exact shape `features/personal/tasks/` already demonstrates.
+2. The new module may depend on `authentication` and on shared `constants/`/`utils/`/`lib/`. It should **not** depend on sibling modules in the same mode (`personal/tasks` ↔ `personal/finance`, etc.) or reach across modes (`personal/*` ↔ `workspace/*`) — if cross-module data sharing is needed, surface it through a route-level composition (like `dashboard-client.tsx` does today) rather than a module-to-module import.
+3. Register the module's nav entry in `features/<mode>/nav.config.ts` (not hardcoded in `Sidebar.tsx` or `MobileBottomNav.tsx` — both are registry-driven via `getNavSections()`). Use the `NavItem` fields (`description`, `visible`, `badge`, `disabled`) as needed; leave `visible: false` items registered-but-hidden if you want to ship code ahead of UI exposure.
+4. If the new module needs AI actions, add executors under `features/ai-assistant/lib/tools/<module>.ts` and register them in `actionRouter.ts` + extend `buildSystemPrompt(mode)` in `prompts.ts` for the relevant mode branch — do not create a second AI integration path, and do not have the tool executor import the module's UI service layer (same reasoning as point 3 in the Dependency Graph).
+5. Reuse `formatCurrency`, `getMonthRange`, `findByName`, and the `constants/priority.ts`-style pattern for any new shared enums.

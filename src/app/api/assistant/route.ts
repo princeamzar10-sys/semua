@@ -18,14 +18,15 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const { message, history = [] } = body as {
+    const { message, history = [], mode = 'personal' } = body as {
       message: string
       history: { role: 'user' | 'model'; parts: [{ text: string }] }[]
+      mode?: 'personal' | 'workspace'
     }
 
     if (!message?.trim()) return NextResponse.json({ error: 'Message is required' }, { status: 400 })
 
-    const systemPrompt = buildSystemPrompt()
+    const systemPrompt = buildSystemPrompt(mode)
     const raw = await callGemini(systemPrompt, history, message)
     const parsed = parseGeminiResponse(raw)
 

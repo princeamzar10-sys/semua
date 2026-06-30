@@ -3,12 +3,12 @@
 import { Topbar } from '@/components/layout/topbar'
 import { AIWidget } from '@/features/dashboard/components/ai-widget'
 import { StatCard } from '@/features/dashboard/components/StatCard'
-import { useTasks } from '@/features/tasks/hooks/use-tasks'
-import { useTransactions } from '@/features/finance/hooks/use-finance'
-import { useHabits, useHabitLogs } from '@/features/habits/hooks/use-habits'
-import { useGoals } from '@/features/goals/hooks/use-goals'
+import { useTasks } from '@/features/personal/tasks/hooks/use-tasks'
+import { useTransactions } from '@/features/personal/finance/hooks/use-finance'
+import { useHabits, useHabitLogs } from '@/features/personal/habits/hooks/use-habits'
+import { useGoals } from '@/features/personal/goals/hooks/use-goals'
 import { generateSuggestions } from '@/lib/ai-suggestions'
-import { CheckSquare, TrendingDown, TrendingUp, Wallet, Flame, Target, ChevronRight, AlertTriangle, Check } from 'lucide-react'
+import { CheckSquare, TrendingDown, TrendingUp, Wallet, Flame, Target, ChevronRight, AlertTriangle, Check, Clock, Plus, Repeat } from 'lucide-react'
 import { format, isToday, isPast, subDays, parseISO } from 'date-fns'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -56,6 +56,27 @@ export function DashboardClient({ user }: DashboardClientProps) {
 
   const suggestions = generateSuggestions({ tasks, transactions, habits, habitLogs, goals })
 
+  // Recent Activity — merged feed from data already fetched above
+  type ActivityItem = { id: string; label: string; sublabel: string; timestamp: string; emoji: string }
+  const recentActivity: ActivityItem[] = [
+    ...tasks.filter(t => t.status === 'completed').map(t => ({
+      id: `task-${t.id}`, label: t.title, sublabel: 'Task completed', timestamp: t.updated_at, emoji: '✅',
+    })),
+    ...transactions.slice(0, 10).map(t => ({
+      id: `tx-${t.id}`, label: t.title, sublabel: t.type === 'income' ? 'Income logged' : 'Expense logged',
+      timestamp: t.created_at, emoji: t.type === 'income' ? '💰' : '💸',
+    })),
+    ...habitLogs.slice(0, 10).map(l => {
+      const habit = habits.find(h => h.id === l.habit_id)
+      return { id: `habit-${l.id}`, label: habit?.name ?? 'Habit', sublabel: 'Habit completed', timestamp: l.completed_at, emoji: habit?.emoji ?? '🎯' }
+    }),
+    ...goals.filter(g => g.status === 'completed').map(g => ({
+      id: `goal-${g.id}`, label: g.title, sublabel: 'Goal completed', timestamp: g.updated_at, emoji: '🏆',
+    })),
+  ]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 5)
+
   const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening'
   const firstName = user.full_name?.split(' ')[0] ?? user.email?.split('@')[0] ?? 'there'
 
@@ -68,6 +89,22 @@ export function DashboardClient({ user }: DashboardClientProps) {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{greeting}, {firstName} 👋</h1>
           <p className="text-sm text-gray-400 mt-0.5">{format(now, 'EEEE, MMMM d, yyyy')}</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: 'Add Task', icon: CheckSquare, href: '/tasks' },
+            { label: 'Add Expense', icon: Plus, href: '/finance' },
+            { label: 'Log Habit', icon: Repeat, href: '/habits' },
+            { label: 'New Goal', icon: Target, href: '/goals' },
+          ].map(({ label, icon: Icon, href }) => (
+            <Link key={label} href={href}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all text-sm text-gray-700">
+              <Icon size={14} className="text-gray-400" />
+              {label}
+            </Link>
+          ))}
         </div>
 
         {/* Summary bar */}
@@ -197,6 +234,31 @@ export function DashboardClient({ user }: DashboardClientProps) {
           <div className="space-y-6">
             {/* AI Insights */}
             <AIWidget suggestions={suggestions} />
+
+            {/* Recent Activity */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-gray-900">Recent Activity</h2>
+                <Clock size={14} className="text-gray-300" />
+              </div>
+              {recentActivity.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-4">No activity yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentActivity.map((item, i) => (
+                    <motion.div key={item.id}
+                      initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
+                      className="flex items-center gap-3">
+                      <span className="text-base shrink-0">{item.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-gray-800 truncate">{item.label}</p>
+                        <p className="text-xs text-gray-400">{item.sublabel}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Goal Progress */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">

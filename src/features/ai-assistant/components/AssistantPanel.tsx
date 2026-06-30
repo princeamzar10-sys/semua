@@ -2,18 +2,19 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Sparkles, Loader2 } from 'lucide-react'
+import { Send, Sparkles } from 'lucide-react'
 import { AssistantResponse, ParsedAction, isReadOnly } from '@/features/ai-assistant/lib/parser'
 import { MessageBubble, Message } from './MessageBubble'
 import { ConfirmationCard } from './ConfirmationCard'
 import { toast } from 'sonner'
+import { useMode } from '@/components/navigation/mode-context'
 
 interface HistoryItem {
   role: 'user' | 'model'
   parts: [{ text: string }]
 }
 
-const EXAMPLES = [
+const PERSONAL_EXAMPLES = [
   'Add expense: lunch RM15 today',
   'Create task: Review proposal due Friday',
   'I completed my gym habit today',
@@ -21,7 +22,19 @@ const EXAMPLES = [
   'Create a goal: Read 12 books, target 12',
 ]
 
+const WORKSPACE_EXAMPLES = [
+  'Summarize today’s meetings.',
+  'Help me plan this project.',
+  'Generate action items.',
+  'Review my workload.',
+  'Create this week’s priorities.',
+]
+
+const WORKSPACE_CANNED_REPLY =
+  'Workspace AI is coming soon — once connected, I’ll be able to help with this. For now, explore the modules in the sidebar to see what’s planned.'
+
 export function AssistantPanel() {
+  const { mode } = useMode()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -52,15 +65,27 @@ export function AssistantPanel() {
 
     setInput('')
     addMessage({ role: 'user', content: trimmed })
-    setLoading(true)
     setPendingActions(null)
     setPendingMsgId(null)
+
+    // Workspace mode never calls Gemini today — show a canned response instead.
+    // Re-enabling live Workspace replies later is a one-line revert here.
+    if (mode === 'workspace') {
+      setLoading(true)
+      setTimeout(() => {
+        addMessage({ role: 'assistant', response: { type: 'message', message: WORKSPACE_CANNED_REPLY } })
+        setLoading(false)
+      }, 400)
+      return
+    }
+
+    setLoading(true)
 
     try {
       const res = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed, history: geminiHistory }),
+        body: JSON.stringify({ message: trimmed, history: geminiHistory, mode }),
       })
 
       const data = await res.json()
@@ -110,7 +135,7 @@ export function AssistantPanel() {
     } finally {
       setLoading(false)
     }
-  }, [loading, geminiHistory, addMessage])
+  }, [loading, geminiHistory, addMessage, mode])
 
   const confirmActions = useCallback(async () => {
     if (!pendingActions?.length) return
@@ -156,6 +181,8 @@ export function AssistantPanel() {
     }
   }
 
+  const examples = mode === 'workspace' ? WORKSPACE_EXAMPLES : PERSONAL_EXAMPLES
+
   return (
     <div className="flex flex-col h-full bg-transparent text-gray-900">
       {/* Header */}
@@ -164,10 +191,20 @@ export function AssistantPanel() {
           <Sparkles size={16} className="text-white" />
         </div>
         <div>
-          <h1 className="text-sm font-semibold text-gray-900">AI Agent</h1>
-          <p className="text-xs text-gray-400">Powered by Gemini 2.5 Flash</p>
+          <h1 className="text-sm font-semibold text-gray-900">{mode === 'workspace' ? 'Workspace Assistant' : 'AI Agent'}</h1>
+          <p className="text-xs text-gray-400">
+            {mode === 'workspace' ? 'Gemini integration coming soon' : 'Powered by Gemini 2.5 Flash'}
+          </p>
         </div>
       </div>
+
+      {mode === 'workspace' && (
+        <div className="px-6 py-2.5 bg-amber-50 border-b border-amber-100">
+          <p className="text-xs text-amber-700">
+            Gemini integration will power these actions soon. For now, responses are previews of what&apos;s coming.
+          </p>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
@@ -178,10 +215,12 @@ export function AssistantPanel() {
             </div>
             <div>
               <p className="text-gray-800 font-medium mb-1">What can I help you with?</p>
-              <p className="text-gray-400 text-sm">Add tasks, log expenses, track habits — just say it naturally.</p>
+              <p className="text-gray-400 text-sm">
+                {mode === 'workspace' ? 'Try one of these — Workspace AI is coming soon.' : 'Add tasks, log expenses, track habits — just say it naturally.'}
+              </p>
             </div>
             <div className="flex flex-col gap-2 w-full max-w-sm">
-              {EXAMPLES.map((ex) => (
+              {examples.map((ex) => (
                 <button
                   key={ex}
                   onClick={() => sendMessage(ex)}
@@ -226,9 +265,15 @@ export function AssistantPanel() {
         </AnimatePresence>
 
         {loading && (
-          <div className="flex items-center gap-2 text-gray-400 text-sm">
-            <Loader2 size={14} className="animate-spin" />
-            <span>Thinking…</span>
+          <div className="flex items-center gap-1.5 px-1">
+            {[0, 1, 2].map(i => (
+              <motion.span
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-gray-300"
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+              />
+            ))}
           </div>
         )}
 
