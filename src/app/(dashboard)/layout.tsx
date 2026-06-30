@@ -1,7 +1,7 @@
 import { Sidebar } from '@/components/layout/sidebar'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/features/authentication/services/server'
 import { redirect } from 'next/navigation'
-import { KeyboardShortcut } from '@/components/KeyboardShortcut'
+import { KeyboardShortcut } from '@/features/command-bar/components/KeyboardShortcut'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()

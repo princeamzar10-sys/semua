@@ -2,98 +2,24 @@
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
-import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/use-tasks'
-import { Task, Priority, TaskStatus } from '@/types'
+import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/features/tasks/hooks/use-tasks'
+import { Task } from '@/features/tasks/types'
+import { TaskCard } from '@/features/tasks/components/TaskCard'
+import { TaskDialog } from '@/features/tasks/components/TaskDialog'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Pencil, Trash2, Search, CheckCircle2, Clock, AlertTriangle, ListTodo, CalendarDays, ChevronDown } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ListTodo, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { taskSchema, TaskFormData } from '@/lib/validations'
-import { format, isToday, isPast, isFuture, parseISO } from 'date-fns'
+import { isToday, isPast, isFuture, parseISO } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
-const priorityColors: Record<Priority, string> = {
-  low: 'bg-gray-100 text-gray-500',
-  medium: 'bg-amber-50 text-amber-600',
-  high: 'bg-orange-50 text-orange-600',
-  urgent: 'bg-red-50 text-red-600',
-}
-
-const priorityDot: Record<Priority, string> = {
-  low: 'bg-gray-300',
-  medium: 'bg-amber-400',
-  high: 'bg-orange-400',
-  urgent: 'bg-red-500',
-}
-
 interface TasksClientProps {
   user: { id: string; email?: string; full_name?: string | null; avatar_url?: string | null }
-}
-
-function TaskCard({ task, onEdit, onDelete, onToggle }: {
-  task: Task
-  onEdit: (t: Task) => void
-  onDelete: (id: string) => void
-  onToggle: (t: Task) => void
-}) {
-  const done = task.status === 'completed'
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      whileHover={{ y: -1 }}
-      className="bg-white rounded-2xl border border-gray-100 px-5 py-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all group"
-    >
-      <button
-        onClick={() => onToggle(task)}
-        className={cn(
-          'w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all duration-200',
-          done ? 'bg-black border-black' : 'border-gray-300 hover:border-gray-600'
-        )}
-      >
-        {done && <CheckCircle2 size={12} className="text-white" />}
-      </button>
-
-      <div className="flex-1 min-w-0">
-        <p className={cn('text-sm font-medium text-gray-900 truncate transition-all', done && 'line-through text-gray-400')}>
-          {task.title}
-        </p>
-        <div className="flex items-center gap-2 mt-1 flex-wrap">
-          {task.due_date && (
-            <span className={cn('flex items-center gap-1 text-xs', isPast(parseISO(task.due_date)) && !done ? 'text-red-500' : 'text-gray-400')}>
-              <CalendarDays size={11} />
-              {format(parseISO(task.due_date), 'MMM d')}
-            </span>
-          )}
-          {task.category && <span className="text-xs text-gray-400">{task.category}</span>}
-        </div>
-      </div>
-
-      <div className="hidden sm:flex items-center gap-2 shrink-0">
-        <div className={cn('w-1.5 h-1.5 rounded-full', priorityDot[task.priority])} />
-        <Badge className={cn('text-xs capitalize rounded-lg border-0 px-2 py-0.5', priorityColors[task.priority])}>
-          {task.priority}
-        </Badge>
-      </div>
-
-      <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button onClick={() => onEdit(task)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors">
-          <Pencil size={13} />
-        </button>
-        <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
-          <Trash2 size={13} />
-        </button>
-      </div>
-    </motion.div>
-  )
 }
 
 function SectionGroup({ title, icon, color, tasks, onEdit, onDelete, onToggle, defaultOpen = true }: {
@@ -279,57 +205,17 @@ export function TasksClient({ user }: TasksClientProps) {
         <Plus size={22} />
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Task' : 'New Task'}</DialogTitle></DialogHeader>
-          <form key={editing?.id ?? 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-            <div>
-              <Input {...register('title')} placeholder="Task title" className="rounded-xl" />
-              {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
-            </div>
-            <textarea {...register('description')} placeholder="Description (optional)" rows={2}
-              className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-black/10" />
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Due Date</label>
-                <Input type="date" {...register('due_date')} className="rounded-xl text-sm" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Category</label>
-                <Input {...register('category')} placeholder="e.g. Work" className="rounded-xl text-sm" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Priority</label>
-                <Select defaultValue={editing?.priority ?? 'medium'} onValueChange={v => setValue('priority', v as Priority)}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Status</label>
-                <Select defaultValue={editing?.status ?? 'todo'} onValueChange={v => setValue('status', v as TaskStatus)}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">To Do</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <Button type="submit" disabled={createTask.isPending || updateTask.isPending} className="w-full rounded-xl bg-black hover:bg-gray-800 text-white">
-              {editing ? 'Save Changes' : 'Create Task'}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <TaskDialog
+        open={open}
+        onOpenChange={setOpen}
+        editing={editing}
+        register={register}
+        handleSubmit={handleSubmit}
+        setValue={setValue}
+        errors={errors}
+        onSubmit={onSubmit}
+        isPending={createTask.isPending || updateTask.isPending}
+      />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/features/authentication/services/server'
 import { TasksClient } from './tasks-client'
 
 export default async function TasksPage() {

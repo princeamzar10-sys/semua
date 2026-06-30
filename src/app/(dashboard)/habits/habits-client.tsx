@@ -2,21 +2,18 @@
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
-import { useHabits, useCreateHabit, useToggleHabit, useDeleteHabit, useHabitLogs } from '@/hooks/use-habits'
+import { useHabits, useCreateHabit, useToggleHabit, useDeleteHabit, useHabitLogs } from '@/features/habits/hooks/use-habits'
+import { HabitHeatmapRow } from '@/features/habits/components/HabitHeatmapRow'
+import { HabitDialog } from '@/features/habits/components/HabitDialog'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, Flame, Check, TrendingUp, Zap } from 'lucide-react'
+import { Plus, Trash2, Flame, TrendingUp, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { habitSchema, HabitFormData } from '@/lib/validations'
 import { format, subDays } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-
-const EMOJIS = ['🏃', '💪', '📚', '🧘', '💧', '🥗', '😴', '🎯', '✍️', '🎵', '🌿', '💊']
 
 interface HabitsClientProps {
   user: { id: string; email?: string; full_name?: string | null; avatar_url?: string | null }
@@ -150,19 +147,7 @@ export function HabitsClient({ user }: HabitsClientProps) {
 
                     {/* 7-day grid */}
                     <div className="mb-4">
-                      <div className="flex gap-1">
-                        {last7.map((date, idx) => (
-                          <div key={date} className="flex-1 flex flex-col items-center gap-1">
-                            <span className="text-[9px] text-gray-300">{last7Labels[idx]}</span>
-                            <div className={cn(
-                              'w-full h-6 rounded-md flex items-center justify-center transition-all',
-                              isCompleted(habit.id, date) ? 'bg-black' : 'bg-gray-100'
-                            )}>
-                              {isCompleted(habit.id, date) && <Check size={9} className="text-white" />}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <HabitHeatmapRow last7={last7} last7Labels={last7Labels} isCompleted={(date) => isCompleted(habit.id, date)} />
                     </div>
 
                     {/* Toggle */}
@@ -192,38 +177,16 @@ export function HabitsClient({ user }: HabitsClientProps) {
         <Plus size={22} />
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader><DialogTitle>New Habit</DialogTitle></DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-            <Input {...register('name')} placeholder="Habit name" className="rounded-xl" />
-            <div>
-              <label className="text-xs text-gray-500 mb-2 block">Choose Emoji</label>
-              <div className="grid grid-cols-6 gap-2">
-                {EMOJIS.map(e => (
-                  <button key={e} type="button" onClick={() => setValue('emoji', e)}
-                    className={cn('h-10 rounded-xl text-xl flex items-center justify-center transition-all', selectedEmoji === e ? 'bg-black' : 'bg-gray-50 hover:bg-gray-100')}>
-                    {e}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Frequency</label>
-              <Select defaultValue="daily" onValueChange={v => setValue('frequency', v as 'daily' | 'weekly')}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" disabled={createHabit.isPending} className="w-full rounded-xl bg-black hover:bg-gray-800 text-white">
-              Create Habit
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <HabitDialog
+        open={open}
+        onOpenChange={setOpen}
+        register={register}
+        handleSubmit={handleSubmit}
+        setValue={setValue}
+        onSubmit={onSubmit}
+        isPending={createHabit.isPending}
+        selectedEmoji={selectedEmoji}
+      />
     </div>
   )
 }

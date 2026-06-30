@@ -1,4 +1,4 @@
-import { AssistantPanel } from '@/components/assistant/AssistantPanel'
+import { AssistantPanel } from '@/features/ai-assistant/components/AssistantPanel'
 
 export default function AssistantPage() {
   return (

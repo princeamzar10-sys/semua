@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ParsedAction } from '@/lib/ai/parser'
-import { executeActions } from '@/lib/router/actionRouter'
+import { ParsedAction } from '@/features/ai-assistant/lib/parser'
+import { executeActions } from '@/features/ai-assistant/lib/actionRouter'
 
 export async function POST(req: NextRequest) {
   try {

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/features/authentication/services/client'
 import { useState } from 'react'
 
 export default function LoginPage() {

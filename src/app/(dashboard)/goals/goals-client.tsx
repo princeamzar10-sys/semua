@@ -2,42 +2,22 @@
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
-import { useGoals, useCreateGoal, useUpdateGoal, useDeleteGoal } from '@/hooks/use-goals'
-import { Goal, GoalStatus } from '@/types'
+import { useGoals, useCreateGoal, useUpdateGoal, useDeleteGoal } from '@/features/goals/hooks/use-goals'
+import { Goal } from '@/features/goals/types'
+import { DeadlineChip } from '@/features/goals/components/DeadlineChip'
+import { GoalDialog } from '@/features/goals/components/GoalDialog'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, Pencil, Target, CheckCircle, Clock, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Plus, Trash2, Pencil, Target, CheckCircle, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { goalSchema, GoalFormData } from '@/lib/validations'
-import { format, differenceInDays, isPast, parseISO } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
 interface GoalsClientProps {
   user: { id: string; email?: string; full_name?: string | null; avatar_url?: string | null }
-}
-
-function DeadlineChip({ deadline }: { deadline: string | null }) {
-  if (!deadline) return null
-  const daysLeft = differenceInDays(parseISO(deadline), new Date())
-  if (isPast(parseISO(deadline))) return (
-    <span className="flex items-center gap-1 text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
-      <AlertTriangle size={10} /> Overdue
-    </span>
-  )
-  if (daysLeft <= 7) return (
-    <span className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-      <Clock size={10} /> {daysLeft}d left
-    </span>
-  )
-  return (
-    <span className="text-xs text-gray-400">{format(parseISO(deadline), 'MMM d, yyyy')}</span>
-  )
 }
 
 export function GoalsClient({ user }: GoalsClientProps) {
@@ -192,49 +172,17 @@ export function GoalsClient({ user }: GoalsClientProps) {
         <Plus size={22} />
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Goal' : 'New Goal'}</DialogTitle></DialogHeader>
-          <form key={editing?.id ?? 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-            <Input {...register('title')} placeholder="Goal title" className="rounded-xl" />
-            {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Target</label>
-                <Input type="number" {...register('target', { valueAsNumber: true })} placeholder="e.g. 100" className="rounded-xl" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Current Progress</label>
-                <Input type="number" {...register('current_progress', { valueAsNumber: true })} placeholder="0" className="rounded-xl" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Deadline</label>
-                <Input type="date" {...register('deadline')} className="rounded-xl" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Category</label>
-                <Input {...register('category')} placeholder="e.g. Health" className="rounded-xl" />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Status</label>
-              <Select defaultValue={editing?.status ?? 'active'} onValueChange={v => setValue('status', v as GoalStatus)}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" disabled={createGoal.isPending || updateGoal.isPending} className="w-full rounded-xl bg-black hover:bg-gray-800 text-white">
-              {editing ? 'Save Changes' : 'Create Goal'}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <GoalDialog
+        open={open}
+        onOpenChange={setOpen}
+        editing={editing}
+        register={register}
+        handleSubmit={handleSubmit}
+        setValue={setValue}
+        errors={errors}
+        onSubmit={onSubmit}
+        isPending={createGoal.isPending || updateGoal.isPending}
+      />
     </div>
   )
 }

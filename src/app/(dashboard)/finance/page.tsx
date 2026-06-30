@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/features/authentication/services/server'
 import { FinanceClient } from './finance-client'
 
 export default async function FinancePage() {

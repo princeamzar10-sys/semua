@@ -1,5 +1,10 @@
-import { Task, FinanceTransaction, Habit, HabitLog, Goal } from '@/types'
-import { format, startOfMonth, endOfMonth, parseISO, isPast, isToday } from 'date-fns'
+import { Task } from '@/features/tasks/types'
+import { FinanceTransaction } from '@/features/finance/types'
+import { Habit, HabitLog } from '@/features/habits/types'
+import { Goal } from '@/features/goals/types'
+import { format, parseISO, isPast, isToday } from 'date-fns'
+import { getMonthRange } from '@/utils/date-range'
+import { formatCurrency } from '@/utils/format-currency'
 
 export interface SuggestionContext {
   tasks: Task[]
@@ -19,8 +24,7 @@ export interface Suggestion {
 export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
   const suggestions: Suggestion[] = []
   const now = new Date()
-  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd')
-  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd')
+  const { start: monthStart, end: monthEnd } = getMonthRange(now)
 
   // Task suggestions
   const overdue = ctx.tasks.filter(t =>
@@ -80,7 +84,7 @@ export function generateSuggestions(ctx: SuggestionContext): Suggestion[] {
 
   if (foodSpend > 0) {
     suggestions.push({
-      message: `You spent RM${foodSpend.toFixed(0)} on food this week.`,
+      message: `You spent ${formatCurrency(foodSpend, 0)} on food this week.`,
       type: 'finance',
       priority: 'info',
     })

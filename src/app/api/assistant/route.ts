@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { callGemini } from '@/lib/ai/gemini'
-import { buildSystemPrompt } from '@/lib/ai/prompts'
-import { parseGeminiResponse } from '@/lib/ai/parser'
+import { callGemini } from '@/features/ai-assistant/lib/gemini'
+import { buildSystemPrompt } from '@/features/ai-assistant/lib/prompts'
+import { parseGeminiResponse } from '@/features/ai-assistant/lib/parser'
 
 export async function POST(req: NextRequest) {
   try {

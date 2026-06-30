@@ -4,22 +4,15 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  LayoutDashboard, CheckSquare, DollarSign, Target, Repeat,
-  Settings, LogOut, ChevronLeft, ChevronRight, Sparkles, Plus, Bot,
+  Settings, LogOut, ChevronLeft, ChevronRight, Sparkles, Plus,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/features/authentication/services/client'
 import { useState } from 'react'
-import { CommandBar } from '@/components/CommandBar'
+import { CommandBar } from '@/features/command-bar/components/CommandBar'
+import { NAV_ITEMS } from '@/constants/routes'
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/tasks', icon: CheckSquare, label: 'Tasks' },
-  { href: '/finance', icon: DollarSign, label: 'Finance' },
-  { href: '/habits', icon: Repeat, label: 'Habits' },
-  { href: '/goals', icon: Target, label: 'Goals' },
-  { href: '/assistant', icon: Bot, label: 'AI Agent' },
-]
+const navItems = NAV_ITEMS
 
 export function Sidebar() {
   const pathname = usePathname()

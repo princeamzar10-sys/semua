@@ -2,24 +2,24 @@
 
 import { useState } from 'react'
 import { Topbar } from '@/components/layout/topbar'
-import { useTransactions, useCreateTransaction, useUpdateTransaction, useDeleteTransaction } from '@/hooks/use-finance'
-import { FinanceTransaction } from '@/types'
+import { useTransactions, useCreateTransaction, useUpdateTransaction, useDeleteTransaction } from '@/features/finance/hooks/use-finance'
+import { FinanceTransaction } from '@/features/finance/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Pencil, TrendingUp, TrendingDown, Wallet, Search, Lightbulb } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { transactionSchema, TransactionFormData } from '@/lib/validations'
-import { format, startOfMonth, endOfMonth } from 'date-fns'
+import { format } from 'date-fns'
+import { getMonthRange } from '@/utils/date-range'
+import { formatCurrency } from '@/utils/format-currency'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { TransactionDialog } from '@/features/finance/components/TransactionDialog'
 
-const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Education', 'Other']
-const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Investment', 'Gift', 'Other']
 const COLORS = ['#111', '#6b7280', '#93c5fd', '#86efac', '#fcd34d', '#f87171', '#c4b5fd', '#fdba74']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -47,8 +47,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
   })
   const txType = watch('type')
 
-  const monthStart = format(startOfMonth(new Date(filterYear, filterMonth)), 'yyyy-MM-dd')
-  const monthEnd = format(endOfMonth(new Date(filterYear, filterMonth)), 'yyyy-MM-dd')
+  const { start: monthStart, end: monthEnd } = getMonthRange(new Date(filterYear, filterMonth))
   const monthly = transactions.filter(t => t.date >= monthStart && t.date <= monthEnd)
 
   const monthlyIncome = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
@@ -102,9 +101,9 @@ export function FinanceClient({ user }: FinanceClientProps) {
         {/* Summary cards */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Income', value: `RM${monthlyIncome.toFixed(2)}`, icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-50' },
-            { label: 'Expenses', value: `RM${monthlyExpenses.toFixed(2)}`, icon: TrendingDown, color: 'text-red-500', bg: 'bg-red-50' },
-            { label: 'Balance', value: `RM${balance.toFixed(2)}`, icon: Wallet, color: balance >= 0 ? 'text-blue-500' : 'text-red-500', bg: balance >= 0 ? 'bg-blue-50' : 'bg-red-50' },
+            { label: 'Income', value: formatCurrency(monthlyIncome), icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-50' },
+            { label: 'Expenses', value: formatCurrency(monthlyExpenses), icon: TrendingDown, color: 'text-red-500', bg: 'bg-red-50' },
+            { label: 'Balance', value: formatCurrency(balance), icon: Wallet, color: balance >= 0 ? 'text-blue-500' : 'text-red-500', bg: balance >= 0 ? 'bg-blue-50' : 'bg-red-50' },
           ].map(({ label, value, icon: Icon, color, bg }, i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
@@ -127,7 +126,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
             <div>
               <p className="text-sm font-semibold text-amber-900">Spending Insight</p>
               <p className="text-sm text-amber-700 mt-0.5">
-                Your highest expense this month is <strong>{topCategory.name}</strong> at RM{topCategory.value.toFixed(2)}.
+                Your highest expense this month is <strong>{topCategory.name}</strong> at {formatCurrency(topCategory.value)}.
                 {monthlyIncome > 0 && ` That's ${Math.round((topCategory.value / monthlyIncome) * 100)}% of your income.`}
               </p>
             </div>
@@ -144,7 +143,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
                   <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value">
                     {pieData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
                   </Pie>
-                  <Tooltip formatter={(v) => [`RM${Number(v).toFixed(2)}`, '']} />
+                  <Tooltip formatter={(v) => [formatCurrency(Number(v)), '']} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1.5 mt-3">
@@ -154,7 +153,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                       <span className="text-gray-600">{d.name}</span>
                     </div>
-                    <span className="font-medium text-gray-900">RM{d.value.toFixed(0)}</span>
+                    <span className="font-medium text-gray-900">{formatCurrency(d.value, 0)}</span>
                   </div>
                 ))}
               </div>
@@ -212,7 +211,7 @@ export function FinanceClient({ user }: FinanceClientProps) {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className={cn('text-sm font-semibold', t.type === 'income' ? 'text-green-600' : 'text-red-500')}>
-                          {t.type === 'income' ? '+' : '-'}RM{t.amount.toFixed(2)}
+                          {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                         </span>
                         <div className="flex opacity-0 group-hover:opacity-100 gap-0.5 transition-opacity">
                           <button onClick={() => openEdit(t)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100">
@@ -239,44 +238,18 @@ export function FinanceClient({ user }: FinanceClientProps) {
         <Plus size={22} />
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Transaction' : 'New Transaction'}</DialogTitle></DialogHeader>
-          <form key={editing?.id ?? 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-            <Input {...register('title')} placeholder="Title" className="rounded-xl" />
-            {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Input type="number" step="0.01" {...register('amount', { valueAsNumber: true })} placeholder="Amount" className="rounded-xl" />
-                {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount.message}</p>}
-              </div>
-              <Select defaultValue={editing?.type ?? 'expense'} onValueChange={v => setValue('type', v as 'income' | 'expense')}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="expense">Expense</SelectItem>
-                  <SelectItem value="income">Income</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Select defaultValue={editing?.category} onValueChange={v => setValue('category', String(v || ''))}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Category" /></SelectTrigger>
-                <SelectContent>
-                  {(txType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input type="date" {...register('date')} className="rounded-xl" />
-            </div>
-            <textarea {...register('notes')} placeholder="Notes (optional)" rows={2}
-              className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-black/10" />
-            <Button type="submit" disabled={createTx.isPending || updateTx.isPending} className="w-full rounded-xl bg-black hover:bg-gray-800 text-white">
-              {editing ? 'Save Changes' : 'Add Transaction'}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <TransactionDialog
+        open={open}
+        onOpenChange={setOpen}
+        editing={editing}
+        register={register}
+        handleSubmit={handleSubmit}
+        setValue={setValue}
+        errors={errors}
+        onSubmit={onSubmit}
+        isPending={createTx.isPending || updateTx.isPending}
+        txType={txType}
+      />
     </div>
   )
 }

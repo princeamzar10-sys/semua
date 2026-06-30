@@ -1,17 +1,20 @@
 'use client'
 
 import { Topbar } from '@/components/layout/topbar'
-import { AIWidget } from '@/components/ai/ai-widget'
-import { useTasks } from '@/hooks/use-tasks'
-import { useTransactions } from '@/hooks/use-finance'
-import { useHabits, useHabitLogs } from '@/hooks/use-habits'
-import { useGoals } from '@/hooks/use-goals'
+import { AIWidget } from '@/features/dashboard/components/ai-widget'
+import { StatCard } from '@/features/dashboard/components/StatCard'
+import { useTasks } from '@/features/tasks/hooks/use-tasks'
+import { useTransactions } from '@/features/finance/hooks/use-finance'
+import { useHabits, useHabitLogs } from '@/features/habits/hooks/use-habits'
+import { useGoals } from '@/features/goals/hooks/use-goals'
 import { generateSuggestions } from '@/lib/ai-suggestions'
 import { CheckSquare, TrendingDown, TrendingUp, Wallet, Flame, Target, ChevronRight, AlertTriangle, Check } from 'lucide-react'
-import { format, isToday, isPast, startOfMonth, endOfMonth, subDays, parseISO } from 'date-fns'
+import { format, isToday, isPast, subDays, parseISO } from 'date-fns'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { getMonthRange } from '@/utils/date-range'
+import { formatCurrency } from '@/utils/format-currency'
 
 interface DashboardClientProps {
   user: { id: string; email?: string; full_name?: string | null; avatar_url?: string | null }
@@ -25,8 +28,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
   const { data: goals = [] } = useGoals()
 
   const now = new Date()
-  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd')
-  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd')
+  const { start: monthStart, end: monthEnd } = getMonthRange(now)
   const todayStr = format(now, 'yyyy-MM-dd')
 
   // Tasks
@@ -74,17 +76,10 @@ export function DashboardClient({ user }: DashboardClientProps) {
             { label: "Today's Tasks", value: todayTasks.length, icon: CheckSquare, color: 'text-blue-500', bg: 'bg-blue-50', href: '/tasks' },
             { label: 'Overdue', value: overdueTasks.length, icon: AlertTriangle, color: overdueTasks.length > 0 ? 'text-red-500' : 'text-gray-400', bg: overdueTasks.length > 0 ? 'bg-red-50' : 'bg-gray-50', href: '/tasks' },
             { label: 'Habits Done', value: `${todayLogs.length}/${habits.length}`, icon: Flame, color: 'text-orange-500', bg: 'bg-orange-50', href: '/habits' },
-            { label: 'Balance', value: `RM${balance.toFixed(0)}`, icon: Wallet, color: balance >= 0 ? 'text-green-500' : 'text-red-500', bg: balance >= 0 ? 'bg-green-50' : 'bg-red-50', href: '/finance' },
-          ].map(({ label, value, icon: Icon, color, bg, href }, i) => (
+            { label: 'Balance', value: formatCurrency(balance, 0), icon: Wallet, color: balance >= 0 ? 'text-green-500' : 'text-red-500', bg: balance >= 0 ? 'bg-green-50' : 'bg-red-50', href: '/finance' },
+          ].map(({ label, value, icon, color, bg, href }, i) => (
             <Link href={href} key={label}>
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-all cursor-pointer">
-                <div className={cn('w-8 h-8 rounded-xl flex items-center justify-center mb-2', bg)}>
-                  <Icon size={15} className={color} />
-                </div>
-                <p className="text-xl font-bold text-gray-900">{value}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{label}</p>
-              </motion.div>
+              <StatCard label={label} value={value} icon={icon} iconColor={color} bg={bg} index={i} />
             </Link>
           ))}
         </div>
@@ -139,9 +134,9 @@ export function DashboardClient({ user }: DashboardClientProps) {
               </div>
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {[
-                  { label: 'Income', value: `RM${monthlyIncome.toFixed(0)}`, color: 'text-green-600', icon: TrendingUp },
-                  { label: 'Expenses', value: `RM${monthlyExpenses.toFixed(0)}`, color: 'text-red-500', icon: TrendingDown },
-                  { label: 'Balance', value: `RM${Math.abs(balance).toFixed(0)}`, color: balance >= 0 ? 'text-blue-600' : 'text-red-500', icon: Wallet },
+                  { label: 'Income', value: formatCurrency(monthlyIncome, 0), color: 'text-green-600', icon: TrendingUp },
+                  { label: 'Expenses', value: formatCurrency(monthlyExpenses, 0), color: 'text-red-500', icon: TrendingDown },
+                  { label: 'Balance', value: formatCurrency(Math.abs(balance), 0), color: balance >= 0 ? 'text-blue-600' : 'text-red-500', icon: Wallet },
                 ].map(({ label, value, color, icon: Icon }) => (
                   <div key={label} className="text-center p-3 rounded-xl bg-gray-50">
                     <p className={cn('text-lg font-bold', color)}>{value}</p>
