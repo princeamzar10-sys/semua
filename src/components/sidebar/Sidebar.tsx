@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Settings, LogOut, ChevronLeft, ChevronRight, Sparkles, Plus,
+  Settings, LogOut, Menu, Sparkles, Plus,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/features/authentication/services/client'
@@ -199,9 +199,10 @@ export function Sidebar() {
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-6 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-gray-700 transition-colors z-10"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="absolute right-2 top-6 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-gray-700 transition-colors z-10"
         >
-          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+          <Menu size={12} />
         </button>
       </motion.aside>
     </>
