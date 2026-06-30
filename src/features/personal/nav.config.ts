@@ -1,4 +1,4 @@
-import { LayoutDashboard, Bot, CheckSquare, Repeat, Target, Receipt, TrendingUp, Wallet, FileText, Settings, Calendar } from 'lucide-react'
+import { LayoutDashboard, Bot, CheckSquare, Repeat, Target, Receipt, TrendingUp, Wallet, FileText, Calendar } from 'lucide-react'
 import { NavSection } from '@/components/navigation/nav-registry'
 
 export const personalNavSections: NavSection[] = [
@@ -24,11 +24,6 @@ export const personalNavSections: NavSection[] = [
       { href: '/finance?type=income', icon: TrendingUp, label: 'Income' },
       { href: '/finance/budget', icon: Wallet, label: 'Budget', disabled: true, badge: 'Soon' },
       { href: '/finance/tax', icon: FileText, label: 'Tax', disabled: true, badge: 'Soon' },
-    ],
-  },
-  {
-    items: [
-      { href: '/settings', icon: Settings, label: 'Settings' },
     ],
   },
 ]

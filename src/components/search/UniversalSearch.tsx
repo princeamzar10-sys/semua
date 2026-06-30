@@ -24,16 +24,13 @@ interface PersonalResult { id: string; title: string; subtitle: string; href: st
 
 export function UniversalSearchTrigger() {
   const { setSearchOpen } = usePanel()
-  const { mode } = useMode()
   return (
     <button
       onClick={() => setSearchOpen(true)}
-      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 text-sm transition-colors"
+      aria-label="Search"
+      className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
     >
       <Search size={14} />
-      <span className="hidden sm:inline">
-        {mode === 'workspace' ? 'Search projects, meetings, docs…' : 'Search tasks, habits, finance, goals…'}
-      </span>
     </button>
   )
 }

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Bot, Settings } from 'lucide-react'
+import { LayoutDashboard, Bot } from 'lucide-react'
 import { NavSection, NavItem } from '@/components/navigation/nav-registry'
 import { WORKSPACE_MODULES, SidebarGroup } from '@/lib/workspace/modules'
 
@@ -27,9 +27,4 @@ export const workspaceNavSections: NavSection[] = [
     ],
   },
   ...groupedSections,
-  {
-    items: [
-      { href: '/settings', icon: Settings, label: 'Settings' },
-    ],
-  },
 ]
