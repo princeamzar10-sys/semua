@@ -10,7 +10,8 @@ const OPTIONS: { value: Mode; label: string }[] = [
   { value: 'workspace', label: 'Workspace' },
 ]
 
-const PERSONAL_ONLY_ROUTES = ['/tasks', '/finance', '/habits', '/goals']
+// Routes that exist in both modes — switching shouldn't bounce the user away from these.
+const SHARED_ROUTES = ['/settings', '/assistant']
 
 export function ModeSwitch() {
   const { mode, setMode } = useMode()
@@ -21,11 +22,14 @@ export function ModeSwitch() {
     setMode(value)
     if (value === mode) return
 
-    // Navigate the user out of a route that doesn't exist in the target mode,
-    // so the app actually "transforms" instead of leaving a mismatched page
-    // mounted under the new mode's sidebar. Shared routes (Settings, Assistant)
-    // and routes already valid for the target mode are left alone.
-    if (value === 'workspace' && PERSONAL_ONLY_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'))) {
+    // Always land the user on the target mode's home route, so the app
+    // actually "transforms" seamlessly instead of leaving a mismatched page
+    // mounted under the new mode's sidebar — except on routes shared by both
+    // modes (Settings, Assistant), where switching just updates the sidebar.
+    const isShared = SHARED_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'))
+    if (isShared) return
+
+    if (value === 'workspace' && !pathname.startsWith('/workspace')) {
       router.push('/workspace')
     } else if (value === 'personal' && pathname.startsWith('/workspace')) {
       router.push('/dashboard')
