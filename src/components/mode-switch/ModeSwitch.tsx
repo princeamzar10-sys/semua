@@ -33,7 +33,7 @@ export function ModeSwitch() {
   }
 
   return (
-    <div className="relative inline-flex items-center bg-gray-100 rounded-full p-1 gap-1">
+    <div className="relative flex items-center w-full bg-gray-100 rounded-full p-1 gap-1">
       {OPTIONS.map(({ value, label }) => {
         const active = mode === value
         return (
@@ -41,7 +41,7 @@ export function ModeSwitch() {
             key={value}
             onClick={() => handleSelect(value)}
             className={cn(
-              'relative z-10 px-4 py-1.5 text-sm font-medium rounded-full transition-colors',
+              'relative z-10 flex-1 px-3 py-1.5 text-sm font-medium rounded-full transition-colors',
               active ? 'text-white' : 'text-gray-500 hover:text-gray-800'
             )}
           >

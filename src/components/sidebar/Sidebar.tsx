@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useMode } from '@/components/navigation/mode-context'
 import { useQuickAdd } from '@/components/navigation/quick-add-context'
 import { getNavSections, NavItem } from '@/components/navigation/nav-registry'
+import { ModeSwitch } from '@/components/mode-switch/ModeSwitch'
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -106,6 +107,11 @@ export function Sidebar() {
               </motion.span>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* Mode switch */}
+        <div className={cn('px-2 pt-3', collapsed && 'flex justify-center')}>
+          {collapsed ? null : <ModeSwitch />}
         </div>
 
         {/* Quick Add button */}

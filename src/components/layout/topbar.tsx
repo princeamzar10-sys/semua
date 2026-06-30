@@ -4,15 +4,14 @@ import { Bell } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { UniversalSearchTrigger } from '@/components/search/UniversalSearch'
 
 interface TopbarProps {
   title: string
   user?: { full_name?: string | null; avatar_url?: string | null; email?: string }
-  /** Optional extra content rendered before the bell icon — e.g. WorkspaceSearchTrigger. Unused by Personal pages. */
-  extra?: React.ReactNode
 }
 
-export function Topbar({ title, user, extra }: TopbarProps) {
+export function Topbar({ title, user }: TopbarProps) {
   const initials = user?.full_name
     ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : user?.email?.[0]?.toUpperCase() ?? 'U'
@@ -24,7 +23,7 @@ export function Topbar({ title, user, extra }: TopbarProps) {
         <p className="text-xs text-gray-400">{format(new Date(), 'EEEE, MMMM d')}</p>
       </div>
       <div className="flex items-center gap-3">
-        {extra}
+        <UniversalSearchTrigger />
         <button className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors">
           <Bell size={16} />
         </button>
